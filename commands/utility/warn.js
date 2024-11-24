@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder ,EmbedBuilder,Colors} = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -58,7 +58,20 @@ module.exports = {
                     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
                 }
                 //DMにWARN通知
-                await target.send(`!WARNING!:\nあなたは${reason}により警告されました。\nモデレーター:${interaction.user.globalName}`)
+                await target.send({
+                    content: "あなたは警告を受けました。理由は以下の通りです。",
+                    embeds: [
+                        new EmbedBuilder()
+                            .setAuthor({ name: `モデレーター: ${interaction.user.globalName}` })
+                            .setTitle('TYPE: :warning:WARNING!')
+                            .setFields([
+                                { name: '理由:', value: reason, inline: false },
+                                { name: '現在の違反ポイント:', value: `${data.points[target_id]} 点`, inline: false },
+                                { name: '異議申し立てについて:', value: "ルールを熟読したのち、なぜ異議申し立てをするのかをhttps://discord.com/channels/1288043163059097600/1288043164288155670 に送信願います", inline: false }
+                            ])
+                            .setColor(Colors.Red)
+                    ]
+                });
                 await interaction.reply({ content: `正常にWARNが送信されました`});
             }
             //エラー処理
