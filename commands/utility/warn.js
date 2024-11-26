@@ -60,29 +60,51 @@ module.exports = {
 		    		//warnメイン処理
 				//warnポイントに応じ変更
 				//0~5ポイント
-				if (data.point[target_id] <= 5) {
-					console.log("this is warn point test");
+				if (data.points[target_id] <= 5) {
+					//DMにWARN通知
+					await target.send({
+						content: "あなたは警告を受けました。理由は以下の通りです。",
+						embeds: [
+							new EmbedBuilder()
+								.setAuthor({ name: `モデレーター: ${interaction.user.globalName}` })
+								.setTitle('TYPE: :warning:WARNING!')
+								.setFields([
+									{ name: '理由:', value: reason, inline: false },
+									{ name: '現在の違反ポイント:', value: `${data.points[target_id]} 点`, inline: false },
+									{ name: '異議申し立てについて:', value: "ルールを熟読したのち、なぜ異議申し立てをするのかをhttps://discord.com/channels/1288043163059097600/1288043164288155670 に送信願います", inline: false }
+								])
+							.setColor(Colors.Yellow)
+						]
+				});
+				await interaction.reply({ content: `正常にWARNが送信されました`});
+				} else if (data.points[target_id] <= 10) {
+					//違反ポイント*10分
+					time = data.points[target_id] * 600000
+					//タイムアウト処理(*60000は1分に修正用)
+					target_id.timeout(time, reason);
+					await target.send({
+						content: "あなたは警告を受け、タイムアウトが付与されました。理由は以下の通りです。",
+						embeds: [
+							new EmbedBuilder()
+								.setAuthor({ name: `モデレーター: ${interaction.user.globalName}` })
+								.setTitle('TYPE: :warning:WARNING! + TIMEOUT')
+								.setFields([
+									{ name: '理由:', value: reason, inline: false },
+									{ name: '現在の違反ポイント:', value: `${data.points[target_id]} 点`, inline: false },
+									{ name: 'タイムアウト時間:', value: `${time / 60000} 分`, inline: false },
+									{ name: '異議申し立てについて:', value: "ルールを熟読したのち、なぜ異議申し立てをするのかをhttps://discord.com/channels/1288043163059097600/1288043164288155670 に送信願います", inline: false }
+								])
+							.setColor(Colors.Orange)
+						]
+				});
+				await interaction.reply({ content: `正常にWARNが送信されました`});
 				}
-                		//DMにWARN通知
-                		await target.send({
-                    			content: "あなたは警告を受けました。理由は以下の通りです。",
-                    			embeds: [
-                        			new EmbedBuilder()
-                            			.setAuthor({ name: `モデレーター: ${interaction.user.globalName}` })
-                            			.setTitle('TYPE: :warning:WARNING!')
-                            			.setFields([
-                                			{ name: '理由:', value: reason, inline: false },
-                                			{ name: '現在の違反ポイント:', value: `${data.points[target_id]} 点`, inline: false },
-                                			{ name: '異議申し立てについて:', value: "ルールを熟読したのち、なぜ異議申し立てをするのかをhttps://discord.com/channels/1288043163059097600/1288043164288155670 に送信願います", inline: false }
-                            			])
-                            		.setColor(Colors.Red)
-                    			]
-                		});
 			}
-            			//エラー処理
-        	} catch (error) {
-            		await interaction.reply({ content: `✖エラー!:${error}`});
-            		return;
-        	}
+        //エラー処理
+		} catch (error) {
+			await interaction.reply({ content: `✖エラー!:${error}`});
+			console.log(error)
+			return;
+		}
 	},
 };
